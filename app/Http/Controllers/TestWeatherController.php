@@ -4,23 +4,38 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\WeatherService;
+use App\Services\NewsService;
+use App\Models\Country;
 
 class TestWeatherController extends Controller
 {
     public function cekCuaca()
     {
-        // Memanggil service cuaca yang sudah kita buat
         $weatherService = new WeatherService();
-        
-        // Contoh koordinat: Kita pakai Lhokseumawe (Latitude: 5.1801, Longitude: 97.1507)
-        // Anda juga bisa menggantinya dengan koordinat Jakarta (-6.2088, 106.8456)
         $hasil = $weatherService->getCurrentWeather(5.1801, 97.1507);
         
-        // Menampilkan hasilnya dalam bentuk JSON di browser
         return response()->json([
             'pesan' => 'Testing API Cuaca Berhasil!',
             'lokasi' => 'Lhokseumawe',
             'data_cuaca' => $hasil
+        ]);
+    }
+
+    public function cekBerita()
+    {
+        // Buat data dummy negara untuk ditest
+        $country = Country::firstOrCreate(
+            ['name' => 'Germany'], 
+            ['code' => 'DE', 'currency_code' => 'EUR', 'region' => 'Europe']
+        );
+
+        $newsService = new NewsService();
+        $hasilBerita = $newsService->getCountryNews($country->id, $country->name);
+
+        return response()->json([
+            'pesan' => 'Testing API Berita & Analisis Sentimen',
+            'negara' => $country->name,
+            'data_berita' => $hasilBerita
         ]);
     }
 }
